@@ -46,43 +46,53 @@ def api_github_message():
             print("Initializing Linting Process")
             r = requests.get(url)
             a = r.json()
-            print(a)
-            raw = (a[0]['raw_url'])
-            print(raw)
-            filename = (a[0]['filename']).split("/")
-            file = filename[-1]
+            #print(a)
+            print(len(a))
+            i = 0
+            x = []
+            for i in range(len(a)):
+                raw = (a[i]['raw_url'])
+                print(raw)
+                filename = (a[i]['filename']).split("/")
+                file = filename[-1]
 
+                re = urllib.request.urlopen('%s' % raw)
+                # returned_value = os.system("start \"\" %s" %raw)
+                data = re.read()
+                dst = open("%s" % file, "wb")
+                dst.write(data)
+                dst = open("%s" % file, "r")
+                print("Changed Files fetched, %s" % file)
 
-            re = urllib.request.urlopen('%s' % raw)
-            # returned_value = os.system("start \"\" %s" %raw)
-            data = re.read()
-            dst = open("%s" % file, "wb")
-            dst.write(data)
-            dst = open("%s" % file, "r")
-            print ("Changed Files fecthed, %s"%file)
+                file_ext = (file).split(".")
+                print("File extension of the file: %s" % file_ext[-1])
+                if file_ext[-1] == 'py':
+                    print("Cloned file: %s deleted" % file)
+                    print("Linting file : %s" % file)
+                    cmd = 'pycodestyle %s' % file
+                    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                                               stderr=subprocess.PIPE).communicate(0)
+                    syntax_check = str(process)[2:-1]
+                    # p = str(p)
+                    # p = p[2:-1]
+                    if process == "b''":
+                        q = "No syntax error found"
+                        print(q)
 
-            file_ext = (file).split(".")
-            print ("File extension of the file: %s"%file_ext[-1])
-            if file_ext[-1] == 'py':
-                print("Cloned file: %s deleted"%file)
-                print("Linting file : %s" % file)
-                cmd = 'pycodestyle %s' % file
-                process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE).communicate(0)
-                syntax_check = str(process[0])[2:-1]
-                # p = str(p)
-                # p = p[2:-1]
-                if process == "b''" :
-                    q = "No syntax error found"
-                    print(q)
+                    else:
+                        print("Syntax error found: %s" % syntax_check)
+                        q = "Syntax error found"
 
+                    dst.close()
+                    os.remove("%s" % file)
+                    s = "%s %s" % (q, syntax_check)
                 else:
-                    print("Syntax error found: %s" %syntax_check)
-                    q = "Syntax error found"
-
-                dst.close()
-                os.remove("%s" % file)
-                return "%s %s" % (q, syntax_check)
+                    print("No linter found for %s extension" % file_ext[-1])
+                    s = "No linter found for %s extension" % file_ext[-1]
+                x.append(s)
+                i = i + 1
+                print(i)
+        return "%s" %x
 
 """         model = StoreModel().loadData()
             tdf = TestData()
