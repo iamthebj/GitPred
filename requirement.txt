@@ -1,0 +1,11 @@
+pylint==1.7.1
+pandas==0.23.4
+NumPy==1.9.0
+datetime==4.3
+patch==1.16
+magicmock==0.3
+mock==2.0.0
+flask==1.0.2
+APScheduler==3.5.3
+requests==2.18.4
+-e  git+https://github.com/jgillick/python-pause#egg=python-pause

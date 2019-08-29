@@ -1,0 +1,29 @@
+h2{
+    margin-top: 40px;
+    font-style: lora bold;
+    size: 22px;
+    color: #ff5705;
+}
+hr{
+    margin-top: 30px;
+    border-width: 2px;
+    border-color: #ff5705;
+}
+.hr1{
+    border-color: gray;
+}
+.btn{
+    float: right;
+    margin-right: 5px;
+}
+h6{
+    color: red;
+}
+.alert{
+    color:red;
+    padding: 2px;
+}
+.spinner{
+    opacity: 0.9;
+    z-index: -1;
+}

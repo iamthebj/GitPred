@@ -1,0 +1,2 @@
+from web_git_prediction.file_predict_comment import file_predict_comment
+object_file_predict = file_predict_comment()
