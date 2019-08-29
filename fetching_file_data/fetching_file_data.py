@@ -30,7 +30,7 @@ class Fetch_file:
                       'status', 'additions', 'deletions', 'filename',
                       'criticality', 'count_of_occurrence', 'commit_criticality',
                       'perc_change_files', 'cy_comp']
-        filename = r'C:/Users/biswajit_nath/Desktop/text_gitpredictions/filelevelgithub.csv'
+        filename = r'filelevelgithub.csv'
         # file = os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + '\\' + filename
         exists = os.path.isfile(filename)
         if exists:
@@ -117,7 +117,7 @@ class Fetch_file:
                             print(feature_dict)
                             writer.writerow(feature_dict)
         filelevelgithub.close()
-        filename = r'C:/Users/biswajit_nath/Desktop/text_gitpredictions/filelevelgithub.csv'
+        filename = r'filelevelgithub.csv'
         csv_dataframe = pd.read_csv(filename)
         logging.debug("Data Frame:{} ".format(csv_dataframe))
         return csv_dataframe

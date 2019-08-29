@@ -37,22 +37,23 @@ def index():
 def api_github_message():
     """api for sending comments"""
     if rq.headers['Content-Type'] == 'application/json':
-        print("Received Pull Request")
         my_info = json.dumps(rq.json)
         payload = json.loads(my_info)
         if not payload['action'] == 'closed':
             url = payload['pull_request']['url']
             url = url + '/files'
-            print("Initializing Linting Process")
+            comment_url = payload['pull_request']['comments_url']
             r = requests.get(url)
             a = r.json()
             #print(a)
-            print(len(a))
+            print("Received Pull Request for %d Changed Files"%(len(a)))
+            print("Initializing Linting Process")
             i = 0
             x = []
+            filelist = []
             for i in range(len(a)):
                 raw = (a[i]['raw_url'])
-                print(raw)
+                #print(raw)
                 filename = (a[i]['filename']).split("/")
                 file = filename[-1]
 
@@ -62,7 +63,7 @@ def api_github_message():
                 dst = open("%s" % file, "wb")
                 dst.write(data)
                 dst = open("%s" % file, "r")
-                print("Changed Files fetched, %s" % file)
+                print("Checking syntax errors for File: %d. %s" %(i+1, file))
 
                 file_ext = (file).split(".")
                 print("File extension of the file: %s" % file_ext[-1])
@@ -82,6 +83,7 @@ def api_github_message():
                     else:
                         print("Syntax error found: %s" % syntax_check)
                         q = "Syntax error found"
+                        filelist.append(file)
 
                     dst.close()
                     os.remove("%s" % file)
@@ -91,8 +93,27 @@ def api_github_message():
                     s = "No linter found for %s extension" % file_ext[-1]
                 x.append(s)
                 i = i + 1
-                print(i)
-        return "%s" %x
+            if x is None:
+                comment_body = "Git Assist Prediction : No Syntax Errors Found."
+            else:
+                filelist = list( dict.fromkeys(filelist) )
+                filelist = ', '.join(filelist)
+                comment_body = "Git Assist Prediction: To Be Rejected. Syntax Errors found in the following files: %s."%filelist
+
+            headers = {'Content-Type': 'application/json'}
+            myurl = '%s' % comment_url
+            post_comment_data = '{\"body\":\"%s\"}' % comment_body
+            post_comment_json = json.loads(post_comment_data)
+            response = requests.post(myurl, auth=("iamthebj", "Kj9158852858#"), headers=headers,
+                                     json=post_comment_json)
+            if response.status_code == 201:
+                print("Successfully posted a comment")
+            else:
+                print("Failed to post a response with http status code : ", response.status_code)
+            return "%s" % x
+        else:
+            print("Closed pull request")
+            return "Closed pull request"
 
 """         model = StoreModel().loadData()
             tdf = TestData()

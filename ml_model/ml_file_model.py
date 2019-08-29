@@ -14,7 +14,7 @@ class FileMLModel:
     def __init__(self):
         pass
     def model_init(self):
-        path=r"C:/Users/biswajit_nath/Desktop/text_gitpredictions/filelevelgithub.csv"
+        path=r"filelevelgithub.csv"
         df = pd.read_csv(path)
         df = df[pd.notnull(df['criticality'])]
         df1 = df["filename"]

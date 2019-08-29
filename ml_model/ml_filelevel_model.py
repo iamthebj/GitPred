@@ -28,7 +28,7 @@ class FileMLModel:
         :return:
         """
 
-        df_git_file = pd.read_csv('C:/Users/biswajit_nath/Desktop/text_gitpredictions/filelevelgithub.csv')
+        df_git_file = pd.read_csv('filelevelgithub.csv')
         df_git_file = df_git_file[pd.notnull(df_git_file['criticality'])]
         df_git_file[['commit_criticality']] = \
             df_git_file[['commit_criticality']].fillna(value='non critical')
