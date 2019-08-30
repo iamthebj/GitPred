@@ -67,30 +67,44 @@ def api_github_message():
 
                 file_ext = (file).split(".")
                 print("File extension of the file: %s" % file_ext[-1])
-                if file_ext[-1] == 'py':
-                    print("Cloned file: %s deleted" % file)
-                    print("Linting file : %s" % file)
-                    cmd = 'pycodestyle %s' % file
-                    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                                               stderr=subprocess.PIPE).communicate(0)
-                    syntax_check = str(process)[2:-1]
-                    # p = str(p)
-                    # p = p[2:-1]
-                    if process == "b''":
-                        q = "No syntax error found"
-                        print(q)
+                # HARD CODES FOR LINTERS
+                # PHP
+                if file_ext[-1] == 'php':
+                    lint = 'C:/Users/biswajit_nath/Desktop/text_gitpredictions/Linters/php/php.exe -l'
+                # PY
+                elif file_ext[-1] == 'py':
+                    lint = 'pycodestyle'
+                #C
+                elif file_ext[-1] == 'c':
+                    lint = 'gcc'
+                #CPP
+                elif file_ext[-1] == 'cpp':
+                    lint = 'g++'
 
-                    else:
-                        print("Syntax error found: %s" % syntax_check)
-                        q = "Syntax error found"
-                        filelist.append(file)
-
-                    dst.close()
-                    os.remove("%s" % file)
-                    s = "%s %s" % (q, syntax_check)
                 else:
                     print("No linter found for %s extension" % file_ext[-1])
                     s = "No linter found for %s extension" % file_ext[-1]
+
+                print("Cloned file: %s deleted" % file)
+                print("Linting file : %s" % file)
+                cmd = '%s %s' % (lint, file)
+                process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE).communicate(0)
+                syntax_check = str(process)[2:-1]
+                # p = str(p)
+                # p = p[2:-1]
+                if process == "b''":
+                    q = "No syntax error found"
+                    print(q)
+
+                else:
+                    print("Syntax error found: %s" % syntax_check)
+                    q = "Syntax error found"
+                    filelist.append(file)
+
+                dst.close()
+                os.remove("%s" % file)
+                s = "%s %s" % (q, syntax_check)
                 x.append(s)
                 i = i + 1
             if x is None:
@@ -104,7 +118,7 @@ def api_github_message():
             myurl = '%s' % comment_url
             post_comment_data = '{\"body\":\"%s\"}' % comment_body
             post_comment_json = json.loads(post_comment_data)
-            response = requests.post(myurl, auth=("iamthebj", "Kj9158852858#"), headers=headers,
+            response = requests.post(myurl, auth=("GithubPrediction", "password4gp"), headers=headers,
                                      json=post_comment_json)
             if response.status_code == 201:
                 print("Successfully posted a comment")
