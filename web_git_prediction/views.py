@@ -74,11 +74,13 @@ def api_github_message():
                 # PY
                 elif file_ext[-1] == 'py':
                     lint = 'pycodestyle'
+                    env_path = 'C:/Users/biswajit_nath/AppData/Local/Programs/Python/Python37-32/Lib/site-packages'
                 #C
                 elif file_ext[-1] == 'c':
                     lint = 'gcc'
                 #CPP
                 elif file_ext[-1] == 'cpp':
+                    env_path = 'C:/MinGW/bin'
                     lint = 'g++'
 
                 else:
@@ -90,7 +92,7 @@ def api_github_message():
                 cmd = '%s %s' % (lint, file)
                 process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE,
-                                           env=dict(os.environ, PATH="C:/MinGW/bin")).communicate(0)
+                                           env=dict(os.environ, PATH=env_path)).communicate(0)
                 syntax_check = str(process)[2:-1]
                 # p = str(p)
                 # p = p[2:-1]
