@@ -1,7 +1,7 @@
 '''api module'''
-import os
 import subprocess
 import urllib
+import os
 
 import flask
 import logging
@@ -89,7 +89,8 @@ def api_github_message():
                 print("Linting file : %s" % file)
                 cmd = '%s %s' % (lint, file)
                 process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE).communicate(0)
+                                           stderr=subprocess.PIPE,
+                                           env=dict(os.environ, PATH="C:/MinGW/bin")).communicate(0)
                 syntax_check = str(process)[2:-1]
                 # p = str(p)
                 # p = p[2:-1]
