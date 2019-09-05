@@ -36,6 +36,7 @@ def index():
 @app.route('/github/', methods=['GET', 'POST', 'HEAD'])
 def api_github_message():
     """api for sending comments"""
+    global syntax_check, process
     if rq.headers['Content-Type'] == 'application/json':
         my_info = json.dumps(rq.json)
         payload = json.loads(my_info)
@@ -68,6 +69,7 @@ def api_github_message():
                 file_ext = (file).split(".")
                 print("File extension of the file: %s" % file_ext[-1])
                 # HARD CODES FOR LINTERS
+                lint = None
                 # PHP
                 if file_ext[-1] == 'php':
                     lint = 'C:/Users/biswajit_nath/Desktop/text_gitpredictions/Linters/php/php.exe -l'
@@ -77,23 +79,58 @@ def api_github_message():
                     env_path = 'C:/Users/biswajit_nath/AppData/Local/Programs/Python/Python37-32/Lib/site-packages'
                 #C
                 elif file_ext[-1] == 'c':
-                    lint = 'gcc'
+                    env_path = 'C:/MinGW/bin'
+                    lintgcc = 'gcc'
+                    print("Cloned file: %s deleted" % file)
+                    print("Linting file : %s" % file)
+                    cmd = '%s %s' % (lintgcc, file)
+                    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                                               stderr=subprocess.PIPE, universal_newlines=True,
+                                               env=dict(os.environ, PATH=env_path)).communicate(0)
+                    syntax_check = str(process).split(", b'")[-1]
                 #CPP
                 elif file_ext[-1] == 'cpp':
                     env_path = 'C:/MinGW/bin'
-                    lint = 'g++'
+                    lintgpp = 'g++'
+                    print("Cloned file: %s deleted" % file)
+                    print("Linting file : %s" % file)
+                    cmd = '%s %s' % (lintgpp, file)
+                    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, universal_newlines=True,
+                                               stderr=subprocess.PIPE,
+                                               env=dict(os.environ, PATH=env_path)).communicate(0)
+                    syntax_check = str(process).split(", b'")[-1]
+
+                #JAVA
+                elif file_ext[-1] == 'java':
+                    env_path = 'C:/Program Files/Java/jdk1.7.0_80/bin'
+                    lintgpp = 'javac'
+                    print("Cloned file: %s deleted" % file)
+                    print("Linting file : %s" % file)
+                    cmd = '%s %s' % (lintgpp, file)
+                    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                                               stderr=subprocess.PIPE,
+                                               env=dict(os.environ, PATH=env_path)).communicate(0)
+                    #syntax_check = str(process).replace("\\n", "")[6:-1]
+                    output_string = ""
+                    for i in range(len(process)):
+                        output_string = output_string + process[i].decode("utf_8")
+
+                    print(output_string)
+
 
                 else:
                     print("No linter found for %s extension" % file_ext[-1])
                     s = "No linter found for %s extension" % file_ext[-1]
 
-                print("Cloned file: %s deleted" % file)
-                print("Linting file : %s" % file)
-                cmd = '%s %s' % (lint, file)
-                process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE,
-                                           env=dict(os.environ, PATH=env_path)).communicate(0)
-                syntax_check = str(process)[2:-1]
+                if(lint!=None):
+                    print("Cloned file: %s deleted" % file)
+                    print("Linting file : %s" % file)
+                    cmd = '%s %s' % (lint, file)
+                    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                                               stderr=subprocess.PIPE).communicate(0)
+                    syntax_check = ""
+                    for i in range(len(process)):
+                        syntax_check = syntax_check + process[i].decode("utf_8")
                 # p = str(p)
                 # p = p[2:-1]
                 if process == "b''":
