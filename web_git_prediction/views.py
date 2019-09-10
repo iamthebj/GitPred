@@ -42,7 +42,6 @@ def api_github_message():
         payload = json.loads(my_info)
         comment_url = payload['pull_request']['comments_url']
         comment_body = lint(payload)
-        print(comment_body)
         headers = {'Content-Type': 'application/json'}
         myurl = '%s' % comment_url
         post_comment_data = '{\"body\":\"%s\"}' % comment_body

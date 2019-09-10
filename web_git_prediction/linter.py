@@ -1,12 +1,14 @@
 import os
 import subprocess
 import urllib
+import logging
 
 import requests
 
+log = logging.getLogger(__name__)
 
 def lint(payload):
-    global syntax_check, process
+    global syntax_check, process, cmd, comment_body
     if not payload['action'] == 'closed':
         url = payload['pull_request']['url']
         url = url + '/files'
@@ -30,25 +32,32 @@ def lint(payload):
             dst = open("%s" % file, "wb")
             dst.write(data)
             dst = open("%s" % file, "r")
-            print("Checking syntax errors for File: %d. %s" % (i + 1, file))
+            #print("Checking syntax errors for File: %d. %s" % (i + 1, file))
 
             file_ext = (file).split(".")
-            print("File extension of the file: %s" % file_ext[-1])
+            #print("File extension of the file: %s" % file_ext[-1])
             # HARD CODES FOR LINTERS
             lint = None
             # PHP
             if file_ext[-1] == 'php':
-                lint = 'C:/Users/biswajit_nath/Desktop/text_gitpredictions/Linters/php/php.exe -l'
+                lint = 'D:/biswajit/gitpred/Linters/php/php.exe -l'
             # PY
             elif file_ext[-1] == 'py':
-                lint = 'pycodestyle'
-                env_path = 'C:/Users/biswajit_nath/AppData/Local/Programs/Python/Python37-32/Lib/site-packages'
+                lintpy = 'pycodestyle'
+                env_path = 'D:/biswajit/gitpred/web_git_prediction/'
+                cmd = '%s %s' % (lintpy, file)
+                process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
+                                           env=dict(os.environ, PATH=env_path)).communicate(0)
+                syntax_check = ""
+                for i in range(len(process)):
+                    syntax_check = syntax_check + process[i].decode("utf_8")
             # C
             elif file_ext[-1] == 'c':
-                env_path = 'C:/MinGW/bin'
+                env_path = 'D:/biswajit/gitpred/MinGW/bin'
                 lintgcc = 'gcc'
-                print("Cloned file: %s deleted" % file)
-                print("Linting file : %s" % file)
+                #print("Cloned file: %s deleted" % file)
+                #print("Linting file : %s" % file)
                 cmd = '%s %s' % (lintgcc, file)
                 process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE, universal_newlines=True,
@@ -56,10 +65,10 @@ def lint(payload):
                 syntax_check = str(process).split(", b'")[-1]
             # CPP
             elif file_ext[-1] == 'cpp':
-                env_path = 'C:/MinGW/bin'
+                env_path = 'D:/biswajit/gitpred/MinGW/bin'
                 lintgpp = 'g++'
-                print("Cloned file: %s deleted" % file)
-                print("Linting file : %s" % file)
+                #print("Cloned file: %s deleted" % file)
+                #print("Linting file : %s" % file)
                 cmd = '%s %s' % (lintgpp, file)
                 process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, universal_newlines=True,
                                            stderr=subprocess.PIPE,
@@ -67,19 +76,19 @@ def lint(payload):
                 syntax_check = str(process).split(", b'")[-1]
 
             # JAVA
-            elif file_ext[-1] == 'java':
-                env_path = 'C:/Program Files/Java/jdk1.7.0_80/bin'
-                lintgpp = 'javac'
-                print("Cloned file: %s deleted" % file)
-                print("Linting file : %s" % file)
-                cmd = '%s %s' % (lintgpp, file)
-                process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE,
-                                           env=dict(os.environ, PATH=env_path)).communicate(0)
+            #elif file_ext[-1] == 'java':
+                #env_path = 'C:/Program Files/Java/jdk1.7.0_80/bin'
+                #lintgpp = 'javac'
+                #print("Cloned file: %s deleted" % file)
+                #print("Linting file : %s" % file)
+                #cmd = '%s %s' % (lintgpp, file)
+                #process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                                           #stderr=subprocess.PIPE,
+                                           #env=dict(os.environ, PATH=env_path)).communicate(0)
                 # syntax_check = str(process).replace("\\n", "")[6:-1]
-                syntax_check = ""
-                for i in range(len(process)):
-                    syntax_check = syntax_check + process[i].decode("utf_8")
+                #syntax_check = ""
+                #for i in range(len(process)):
+                    #syntax_check = syntax_check + process[i].decode("utf_8")
 
 
             else:
@@ -87,8 +96,8 @@ def lint(payload):
                 s = "No linter found for %s extension" % file_ext[-1]
 
             if (lint != None):
-                print("Cloned file: %s deleted" % file)
-                print("Linting file : %s" % file)
+                #print("Cloned file: %s deleted" % file)
+                #print("Linting file : %s" % file)
                 cmd = '%s %s' % (lint, file)
                 process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE).communicate(0)
@@ -102,7 +111,8 @@ def lint(payload):
                 print(q)
 
             else:
-                print("Syntax error found: %s" % syntax_check)
+                #print("Syntax error found: %s" % syntax_check)
+                #app.logger.info("Syntax Error Found: %s", syntax_check)
                 q = "Syntax error found"
                 filelist.append(file)
 
@@ -120,7 +130,4 @@ def lint(payload):
             comment_body = "Git Assist Prediction: To Be Rejected." \
                            "Syntax Errors found in the following files: %s." % filelist
             x = []
-
-    else:
-        print("Closed pull request")
-    return comment_body
+        return comment_body
